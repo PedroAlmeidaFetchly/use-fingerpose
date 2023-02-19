@@ -1,9 +1,9 @@
 import useFingerpose from "./hooks/useFingerpose";
 
 function App() {
-  const { loading } = useFingerpose();
+  const { loading, error } = useFingerpose();
 
-  console.log(loading);
+  console.log(loading, error);
   return (
     <div>
       <h1>useFingerpose</h1>
