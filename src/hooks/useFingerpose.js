@@ -7,8 +7,9 @@ const useFingerpose = (config) => {
   const [handposeLoading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [cameraLoading, setCameraLoading] = useState(true);
+  const [hand, setHand] = useState(null);
 
-  const detect = () => {
+  const detect = async (net) => {
     if (
       typeof webcamRef.current === "undefined" ||
       webcamRef.current === null ||
@@ -17,26 +18,34 @@ const useFingerpose = (config) => {
       return;
     else {
       setCameraLoading(false);
-      console.log(webcamRef.current);
+      const video = webcamRef.current.video;
+
+      try {
+        const handRes = await net.estimateHands(video);
+        setHand(handRes);
+        setError(null);
+      } catch (error) {
+        setError({ local: "hand", error });
+      }
     }
   };
   const runHandPose = async () => {
     try {
       const net = await handpose.load();
       setLoading(false);
-
+      setError(null);
       setInterval(() => {
         detect(net);
       }, timeFrame);
     } catch (error) {
       setLoading(false);
-      setError(error);
+      setError({ local: "handpose", error });
     }
   };
 
   runHandPose();
 
-  return { handposeLoading, error, cameraLoading };
+  return { handposeLoading, error, cameraLoading, hand };
 };
 
 export default useFingerpose;
